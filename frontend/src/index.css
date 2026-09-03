@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+@theme {
+  --color-brand-50: #f0f7ff;
+  --color-brand-600: #1d4ed8;
+  --color-brand-700: #1e40af;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply m-0 bg-slate-50 font-sans text-slate-900 antialiased; }
+  button, input, textarea { font: inherit; }
+}

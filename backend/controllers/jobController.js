@@ -66,8 +66,62 @@ const getJobById = async (req, res) => {
         });
     }
 };
+
+const deleteJob = async (req, res) => {
+    try {
+        const job = await Job.findById(req.params.id);
+
+        if (!job) {
+            return res.status(404).json({
+                message: "Job not found",
+            });
+        }
+
+        await Job.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({
+            message: "Job deleted successfully",
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Server error",
+            error: error.message,
+        });
+    }
+};
+
+const updateJob = async (req, res) => {
+    try {
+        const job = await Job.findById(req.params.id);
+
+        if (!job) {
+            return res.status(404).json({
+                message: "Job not found",
+            });
+        }
+
+        const updatedJob = await Job.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+            message: "Job updated successfully",
+            job: updatedJob,
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Server error",
+            error: error.message,
+        });
+    }
+};
 module.exports = {
     createJob,
     getJobs,
     getJobById,
+    deleteJob,
+    updateJob,
 };

@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../api/axios";
 
 export default function AdminDashboard() {
+    const [jobs, setJobs] = useState([]);
+    const [editingJobId, setEditingJobId] = useState(null);
+
     const [formData, setFormData] = useState({
         title: "",
         company: "",
@@ -21,11 +24,19 @@ export default function AdminDashboard() {
         e.preventDefault();
 
         try {
-            const response = await api.post("/api/jobs", formData);
+            if (editingJobId) {
 
-            // console.log("Job Created:", response.data);
+                await api.put(`/api/jobs/${editingJobId}`, formData);
 
-            alert("Job added successfully!");
+                alert("Job updated successfully!");
+
+                setEditingJobId(null);
+            } else {
+
+                await api.post("/api/jobs", formData);
+
+                alert("Job added successfully!");
+            }
 
             setFormData({
                 title: "",
@@ -34,13 +45,52 @@ export default function AdminDashboard() {
                 salary: "",
                 description: "",
             });
-        } catch (error) {
-            console.log("Error:", error);
 
+            getJobs();
+
+        } catch (error) {
             alert(
-                error.response?.data?.message || "Failed to add job"
+                error.response?.data?.message || "Something went wrong"
             );
         }
+    };
+    useEffect(() => {
+        getJobs();
+    }, []);
+
+    const getJobs = async () => {
+        try {
+            const response = await api.get("/api/jobs");
+            setJobs(response.data.jobs);
+        } catch (error) {
+            console.log("Error fetching jobs:", error);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await api.delete(`/api/jobs/${id}`);
+
+            alert("Job deleted successfully!");
+
+            getJobs();
+        } catch (error) {
+            alert(
+                error.response?.data?.message || "Failed to delete job"
+            );
+        }
+    };
+
+    const handleEdit = (job) => {
+        setEditingJobId(job._id);
+
+        setFormData({
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            salary: job.salary,
+            description: job.description,
+        });
     };
 
     return (
@@ -98,14 +148,52 @@ export default function AdminDashboard() {
                         className="w-full border rounded-lg px-4 py-3 mb-6"
                     />
 
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
-                    >
-                        Add Job
+                    <button type="submit" className="mt-4 mr-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                        {editingJobId ? "Update Job" : "Add Job"}
                     </button>
 
                 </form>
+                <div className="mt-10">
+                    <h2 className="text-2xl font-bold mb-5">
+                        Manage Jobs
+                    </h2>
+
+                    <div className="grid md:grid-cols-2 gap-5">
+                        {jobs.map((job) => (
+                            <div
+                                key={job._id}
+                                className="border rounded-lg p-5 shadow-sm"
+                            >
+                                <h3 className="text-xl font-bold">
+                                    {job.title}
+                                </h3>
+
+                                <p className="mt-2">{job.company}</p>
+
+                                <p className="text-gray-600">
+                                    {job.location}
+                                </p>
+
+                                <p className="mt-2 font-semibold">
+                                    {job.salary}
+                                </p>
+                                <button
+                                    onClick={() => handleEdit(job)}
+                                    className="mt-4 mr-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                >
+                                    Edit Job
+                                </button>
+
+                                <button
+                                    onClick={() => handleDelete(job._id)}
+                                    className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                >
+                                    Delete Job
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );
