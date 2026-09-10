@@ -54,6 +54,8 @@ const createApplication = async (req, resp) => {
         }
 
     } catch (error) {
+          console.error("CREATE APPLICATION ERROR:", error);
+
         resp.status(500).json({
             message: "Server error",
             error: error.message,
