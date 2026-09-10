@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import JobDetails from "./pages/JobDetails";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRoute from "./routes/AdminRoute";
+import ApplyJob from "./pages/ApplyJob";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/jobs/:id" element={<JobDetails />}></Route>
     
           <Route path="/admin" element={<AdminRoute><AdminDashboard /> </AdminRoute>}></Route>
+          <Route path="/jobs/:id/apply" element={<ApplyJob/>}></Route>
 
         </Routes>
 
