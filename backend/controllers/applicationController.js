@@ -1,7 +1,7 @@
 const Application = require("../models/Application");
-const job = require("../models/Job");
+const Job = require("../models/Job");
 
-const createApplication = async (req, resp) => {
+const createApplication = async (req, res) => {
     try {
         const {
             jobId,
@@ -12,6 +12,8 @@ const createApplication = async (req, resp) => {
             skills,
             coverMessage,
         } = req.body;
+
+        // 1. Check required fields
         if (
             !jobId ||
             !name ||
@@ -21,46 +23,59 @@ const createApplication = async (req, resp) => {
             !skills ||
             !coverMessage
         ) {
-            return resp.status(400).json({ message: "Please required all fields" })
-        }
-        const job = await job.findById(jobId);
-        if (!job) {
-            return resp.status(404).json({ message: "Job Not Found" });
+            return res.status(400).json({
+                message: "Please provide all required fields",
+            });
         }
 
-        const existingApplication = await Application.findOne({ job: jobId, application: req.user.userId });
+        // 2. Check whether job exists
+        const job = await Job.findById(jobId);
+
+        if (!job) {
+            return res.status(404).json({
+                message: "Job not found",
+            });
+        }
+
+        // 3. Check duplicate application
+        const existingApplication = await Application.findOne({
+            job: jobId,
+            applicant: req.user.userId,
+        });
 
         if (existingApplication) {
-            return resp.status(400).json({
+            return res.status(400).json({
                 message: "You have already applied for this job",
-            });
-
-            const application = await Application.create({
-                job: jobId,
-                applicant: req.user.userId,
-                name,
-                email,
-                phone,
-                experience,
-                skills,
-                coverMessage,
-            });
-
-
-            resp.status(201).json({
-                message: "Application submitted successfully",
-                application,
             });
         }
 
-    } catch (error) {
-          console.error("CREATE APPLICATION ERROR:", error);
+        // 4. Create application
+        const application = await Application.create({
+            job: jobId,
+            applicant: req.user.userId,
+            name,
+            email,
+            phone,
+            experience,
+            skills,
+            coverMessage,
+        });
 
-        resp.status(500).json({
+        // 5. Send success response
+        res.status(201).json({
+            message: "Application submitted successfully",
+            application,
+        });
+    } catch (error) {
+        console.error("CREATE APPLICATION ERROR:", error);
+
+        res.status(500).json({
             message: "Server error",
             error: error.message,
         });
     }
-}
+};
 
-module.exports = { createApplication, }
+module.exports = {
+    createApplication,
+};
