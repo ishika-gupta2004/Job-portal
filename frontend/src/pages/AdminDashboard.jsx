@@ -41,9 +41,13 @@ export default function AdminDashboard() {
         try {
             const response = await api.get("/api/applications");
 
-            setApplications(response.data.applications);
+            console.log("APPLICATION RESPONSE:", response.data);
+
+            setApplications(response.data.application || []);
+
         } catch (error) {
             console.log("Error fetching applications:", error);
+            setApplications([]);
         }
     };
 
