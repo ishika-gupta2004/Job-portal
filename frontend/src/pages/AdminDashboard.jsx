@@ -4,7 +4,7 @@ import api from "../api/axios";
 export default function AdminDashboard() {
     const [jobs, setJobs] = useState([]);
     const [editingJobId, setEditingJobId] = useState(null);
-    const [application, setApplication] = useState([]);
+    const [applications, setApplications] = useState([]);
 
     const [formData, setFormData] = useState({
         title: "",
@@ -41,7 +41,7 @@ export default function AdminDashboard() {
         try {
             const response = await api.get("/api/applications");
 
-            setApplication(response.data.applications);
+            setApplications(response.data.applications);
         } catch (error) {
             console.log("Error fetching applications:", error);
         }
@@ -160,11 +160,11 @@ export default function AdminDashboard() {
                     </div>
 
                     <span className="bg-slate-900 text-white px-3 py-1.5 rounded-full text-sm">
-                        {application.length} Applications
+                        {applications.length} Applications
                     </span>
                 </div>
 
-                {application.length === 0 ? (
+                {applications.length === 0 ? (
                     <div className="bg-white border border-slate-200 rounded-xl p-10 text-center">
                         <h3 className="text-lg font-semibold text-slate-800">
                             No applications yet
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
                     </div>
                 ) : (
                     <div className="grid md:grid-cols-2 gap-5">
-                        {application.map((application) => (
+                        {applications.map((application) => (
                             <div
                                 key={application._id}
                                 className="bg-white rounded-xl border border-slate-200 shadow-sm"
