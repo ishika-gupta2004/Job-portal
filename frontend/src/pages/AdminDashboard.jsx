@@ -4,6 +4,7 @@ import api from "../api/axios";
 export default function AdminDashboard() {
     const [jobs, setJobs] = useState([]);
     const [editingJobId, setEditingJobId] = useState(null);
+    const [application, setApplication] = useState([]);
 
     const [formData, setFormData] = useState({
         title: "",
@@ -20,6 +21,8 @@ export default function AdminDashboard() {
         });
     };
 
+
+
     const getJobs = async () => {
         try {
             const response = await api.get("/api/jobs");
@@ -31,7 +34,18 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         getJobs();
+        getApplications();
     }, []);
+
+    const getApplications = async () => {
+        try {
+            const response = await api.get("/api/applications");
+
+            setApplication(response.data.applications);
+        } catch (error) {
+            console.log("Error fetching applications:", error);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -75,6 +89,8 @@ export default function AdminDashboard() {
             );
         }
     };
+
+
 
     const handleEdit = (job) => {
         setEditingJobId(job._id);
@@ -130,7 +146,107 @@ export default function AdminDashboard() {
 
                 </div>
             </header>
+            {/* Applications */}
+            <div className="mt-12">
+                <div className="flex items-center justify-between mb-5">
+                    <div>
+                        <h2 className="text-2xl font-bold text-slate-900">
+                            Job Applications
+                        </h2>
 
+                        <p className="text-sm text-slate-500 mt-1">
+                            View applications submitted by users
+                        </p>
+                    </div>
+
+                    <span className="bg-slate-900 text-white px-3 py-1.5 rounded-full text-sm">
+                        {application.length} Applications
+                    </span>
+                </div>
+
+                {application.length === 0 ? (
+                    <div className="bg-white border border-slate-200 rounded-xl p-10 text-center">
+                        <h3 className="text-lg font-semibold text-slate-800">
+                            No applications yet
+                        </h3>
+
+                        <p className="text-slate-500 mt-2">
+                            Applications submitted by users will appear here.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid md:grid-cols-2 gap-5">
+                        {application.map((application) => (
+                            <div
+                                key={application._id}
+                                className="bg-white rounded-xl border border-slate-200 shadow-sm"
+                            >
+                                <div className="p-6">
+
+                                    {/* Applicant */}
+                                    <div className="flex justify-between items-start gap-3">
+                                        <div>
+                                            <h3 className="text-lg font-bold text-slate-900">
+                                                {application.name}
+                                            </h3>
+
+                                            <p className="text-sm text-slate-500 mt-1">
+                                                {application.email}
+                                            </p>
+                                        </div>
+
+                                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full">
+                                            {application.status}
+                                        </span>
+                                    </div>
+
+                                    {/* Job */}
+                                    <div className="mt-5 bg-slate-50 rounded-lg p-4">
+                                        <p className="text-sm text-slate-500">
+                                            Applied For
+                                        </p>
+
+                                        <p className="font-semibold text-slate-900 mt-1">
+                                            {application.job?.title}
+                                        </p>
+
+                                        <p className="text-sm text-slate-600">
+                                            {application.job?.company}
+                                        </p>
+                                    </div>
+
+                                    {/* Details */}
+                                    <div className="mt-5 space-y-2 text-sm">
+                                        <p className="text-slate-600">
+                                            📞 {application.phone}
+                                        </p>
+
+                                        <p className="text-slate-600">
+                                            💼 {application.experience}
+                                        </p>
+
+                                        <p className="text-slate-600">
+                                            🛠️ {application.skills}
+                                        </p>
+                                    </div>
+
+                                    {/* Cover Message */}
+                                    <div className="mt-5">
+                                        <p className="text-sm font-medium text-slate-700">
+                                            Cover Message
+                                        </p>
+
+                                        <p className="text-sm text-slate-500 mt-2">
+                                            {application.coverMessage}
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             {/* Main */}
             <main className="max-w-7xl mx-auto px-6 py-8">

@@ -76,6 +76,24 @@ const createApplication = async (req, res) => {
     }
 };
 
+const getApplication = async (req, resp) => {
+    try {
+        const application = await Application.find()
+            .populate("job", "title company")
+            .populate("applicant", "name email")
+            .sort({ createdAt: -1 });
+
+        resp.status(200).json({ application, })
+    } catch (error) {
+        console.error("GET APPLICATIONS ERROR:", error);
+
+        resp.status(500).json({
+            message: "Server error",
+            error: error.message,
+        });
+    }
+}
+
 module.exports = {
-    createApplication,
+    createApplication,getApplication
 };
